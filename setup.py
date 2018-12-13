@@ -1,10 +1,15 @@
 from setuptools import setup, find_packages
 
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 if __name__ == "__main__":
     setup(
         name="kafkahelpers",
         version="0.0.1",
         description="Helpers for aiokafka clients",
+        long_description=long_description,
         url="https://github.com/jhjaggars/kafkahelpers",
         author="Jesse Jaggars",
         author_email="jhjaggars@gmail.com",
