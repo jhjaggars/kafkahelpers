@@ -4,6 +4,7 @@ import pytest
 from kafka.errors import KafkaError
 from kafkahelpers import ReconnectingClient
 
+
 class FakeMQ:
 
     async def start(self):
@@ -11,15 +12,16 @@ class FakeMQ:
 
 
 class FakeMQFails:
-
     failures = 0
 
     async def start(self):
         if not self.failures:
             self.failures = 1
             raise KafkaError("fakemq fails")
+
         else:
             return True
+
 
 @pytest.mark.asyncio
 async def test_connects():
@@ -40,11 +42,13 @@ async def test_reconnects():
 async def wrkr(client):
     return True
 
+
 async def wrkr_fails(client):
     print(client.failures)
     if client.failures < 2:
         client.failures += 1
         raise KafkaError("wrkr_fails")
+
     return True
 
 
@@ -63,8 +67,10 @@ async def test_work_fails():
     await cl.start()
     assert cl.connected == True
 
+
 def done(v):
     return v == False
+
 
 @pytest.mark.asyncio
 async def test_callback(event_loop):

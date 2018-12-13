@@ -5,6 +5,7 @@ from kafka.errors import KafkaError
 
 logger = logging.getLogger(__name__)
 
+
 @attr.s
 class ReconnectingClient(object):
     """
@@ -34,7 +35,11 @@ class ReconnectingClient(object):
                 logger.info("%s client connected successfully.", self.name)
                 self.connected = True
             except KafkaError:
-                logger.exception("Failed to connect %s client, retrying in %d seconds.", self.name, self.retry_interval)
+                logger.exception(
+                    "Failed to connect %s client, retrying in %d seconds.",
+                    self.name,
+                    self.retry_interval,
+                )
                 await asyncio.sleep(self.retry_interval)
 
     async def work(self, worker):
@@ -44,7 +49,10 @@ class ReconnectingClient(object):
         try:
             await worker(self.client)
         except KafkaError:
-            logger.exception("Encountered exception while working %s client, reconnecting.", self.name)
+            logger.exception(
+                "Encountered exception while working %s client, reconnecting.",
+                self.name,
+            )
             self.connected = False
 
     def get_callback(self, worker, cond=lambda v: True):
@@ -56,12 +64,14 @@ class ReconnectingClient(object):
 
             loop.spawn_callback(client.get_callback(my_cb))
         """
+
         async def _f():
             v = cond(None)
             while cond(v):
                 await self.start()
                 v = await self.work(worker)
                 print(v, cond(v))
+
         return _f
 
     def run(self, worker, cond=lambda v: True):
