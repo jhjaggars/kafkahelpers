@@ -70,7 +70,6 @@ class ReconnectingClient(object):
             while cond(v):
                 await self.start()
                 v = await self.work(worker)
-                print(v, cond(v))
 
         return _f
 
