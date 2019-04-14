@@ -6,7 +6,6 @@ from kafkahelpers import ReconnectingClient
 
 
 class FakeMQ:
-
     async def start(self):
         return True
 

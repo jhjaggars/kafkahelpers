@@ -3,6 +3,7 @@ import logging
 import attr
 from kafka.errors import KafkaError
 
+loop = asyncio.get_event_loop()
 logger = logging.getLogger(__name__)
 
 
@@ -83,3 +84,61 @@ class ReconnectingClient(object):
             loop.create_task(client.run(my_func))
         """
         return self.get_callback(worker, cond)()
+
+
+def consumer(queue, bootstrap_servers, group_id, name="reader", loop=loop):
+    """
+    consumer returns a wrapped kafka consumer that will reconnect.
+    """
+    return ReconnectingClient(
+        aiokafka.AIOKafkaConsumer(
+            queue, bootstrap_servers=bootstrap_servers, group_id=group_id, loop=loop
+        ),
+        name,
+    )
+
+
+def producer(
+    bootstrap_servers,
+    loop=loop,
+    request_timeout_ms=10000,
+    connections_max_idle_ms=None,
+    name="writer",
+):
+    """
+    producer returns a wrapped kafka producer that will reconnect.
+    """
+    return ReconnectingClient(
+        aiokafka.AIOKafkaProducer(
+            loop=loop,
+            request_timeout_ms=request_timeout_ms,
+            connections_max_idle_ms=connections_max_idle_ms,
+        ),
+        name,
+    )
+
+
+def make_pair(
+    read_queue,
+    read_group_id,
+    bootstrap_servers,
+    loop=loop,
+    request_timeout_ms=10000,
+    connections_max_idle_ms=None,
+    read_name="reader",
+    write_name="writer",
+):
+    """
+    make_pair returns a consumer, producer tuple that will reconnect.
+    """
+    return (
+        consumer(
+            read_queue, bootstrap_servers, read_group_id, name=read_name, loop=loop
+        ),
+        producer(
+            bootstrap_servers,
+            loop=loop,
+            request_timeout_ms=request_timeout_ms,
+            connections_max_idle_ms=connections_max_idle_ms,
+        ),
+    )
