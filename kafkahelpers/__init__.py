@@ -143,3 +143,24 @@ def make_pair(
             connections_max_idle_ms=connections_max_idle_ms,
         ),
     )
+
+
+def make_producer(coro, queue, empty_queue_sleep_time=0.1):
+    """
+    Creates a coroutine that consumes a queue (deque) and passes the
+    items to the given coroutine.
+
+    If an exception is raised by the given coroutine, it will
+    trigger a reconnect of the kafka client.
+    """
+    async def _f(client):
+        if not queue:
+            await asyncio.sleep(empty_queue_sleep_time)
+        else:
+            item = queue.popleft()
+            try:
+                await coro(client, item)
+            except KafkaError:
+                queue.append(item)
+                raise
+    return _f
