@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import attr
+import aiokafka
 from kafka.errors import KafkaError
 
 loop = asyncio.get_event_loop()

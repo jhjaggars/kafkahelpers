@@ -1,4 +1,3 @@
-import asyncio
 import pytest
 
 from kafka.errors import KafkaError
@@ -27,7 +26,7 @@ async def test_connects():
     mq = FakeMQ()
     cl = ReconnectingClient(mq, "connects")
     await cl.start()
-    assert cl.connected == True
+    assert cl.connected is True
 
 
 @pytest.mark.asyncio
@@ -35,7 +34,7 @@ async def test_reconnects():
     mq = FakeMQFails()
     cl = ReconnectingClient(mq, "reconnects", retry_interval=0.1)
     await cl.start()
-    assert cl.connected == True
+    assert cl.connected is True
 
 
 async def wrkr(client):
@@ -64,11 +63,11 @@ async def test_work_fails():
     cl = ReconnectingClient(mq, "works_fails", retry_interval=0.1)
     await cl.work(wrkr_fails)
     await cl.start()
-    assert cl.connected == True
+    assert cl.connected is True
 
 
 def done(v):
-    return v == False
+    return v is False
 
 
 @pytest.mark.asyncio
@@ -78,7 +77,7 @@ async def test_callback(event_loop):
     coro = cl.get_callback(wrkr, done)
     task = event_loop.create_task(coro())
     await task
-    assert task.result() == None
+    assert task.result() is None
 
 
 @pytest.mark.asyncio
@@ -88,7 +87,7 @@ async def test_callback_retries(event_loop):
     coro = cl.get_callback(wrkr_fails, done)
     task = event_loop.create_task(coro())
     await task
-    assert task.result() == None
+    assert task.result() is None
 
 
 @pytest.mark.asyncio
@@ -97,4 +96,4 @@ async def test_run(event_loop):
     cl = ReconnectingClient(mq, "callback")
     task = event_loop.create_task(cl.run(wrkr, done))
     await task
-    assert task.result() == None
+    assert task.result() is None

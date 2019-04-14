@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kafkahelpers"
-version = "0.1.0"
+version = "0.2.1"
 description = ""
 authors = ["Jesse Jaggars <jhjaggars@gmail.com>"]
 
@@ -8,6 +8,7 @@ authors = ["Jesse Jaggars <jhjaggars@gmail.com>"]
 python = "^3.6"
 attrs = "^18.2"
 kafka-python = "^1.4"
+aiokafka = "^0.5.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.0"
