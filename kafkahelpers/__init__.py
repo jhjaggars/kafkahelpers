@@ -111,6 +111,7 @@ def producer(
     """
     return ReconnectingClient(
         aiokafka.AIOKafkaProducer(
+            bootstrap_servers=bootstrap_servers,
             loop=loop,
             request_timeout_ms=request_timeout_ms,
             connections_max_idle_ms=connections_max_idle_ms,
