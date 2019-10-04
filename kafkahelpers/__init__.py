@@ -60,10 +60,16 @@ class ReconnectingClient(object):
             )
             self.connected = False
 
-    def get_callback(self, worker, cond=lambda v: True):
+    def get_callback(self, worker, cond=lambda v: True, finalizer=None):
         """
-        Returns a callback function that will ensure that the wrapped client is
-        connected forever.
+        Returns a callback function that will attempt to ensure that the
+        wrapped client is connected forever.
+
+        `cond` is a function that can be used to terminate the loop.  Each time
+        the worker returns a value, it is passed to cond.  If cond returns
+        False, the loop terminates, otherwise it continues.
+
+        `finalizer` is a function that is called if the loop terminates for any reason.
 
         example:
 
@@ -71,14 +77,18 @@ class ReconnectingClient(object):
         """
 
         async def _f():
-            v = cond(None)
-            while cond(v):
-                await self.start()
-                v = await self.work(worker)
+            try:
+                v = cond(None)
+                while cond(v):
+                    await self.start()
+                    v = await self.work(worker)
+            finally:
+                if finalizer:
+                    finalizer()
 
         return _f
 
-    def run(self, worker, cond=lambda v: True):
+    def run(self, worker, cond=lambda v: True, finalizer=None):
         """
         Returns a coroutine that will ensure that the wrapped client is
         connected forever.
@@ -87,7 +97,7 @@ class ReconnectingClient(object):
 
             loop.create_task(client.run(my_func))
         """
-        return self.get_callback(worker, cond)()
+        return self.get_callback(worker, cond, finalizer)()
 
 
 def consumer(queue, bootstrap_servers, group_id, name="reader", loop=loop):

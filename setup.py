@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 if __name__ == "__main__":
     setup(
         name="kafkahelpers",
-        version="0.3.2",
+        version="0.3.3",
         description="Helpers for aiokafka clients",
         long_description=long_description,
         long_description_content_type="text/markdown",

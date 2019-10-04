@@ -97,3 +97,19 @@ async def test_run(event_loop):
     task = event_loop.create_task(cl.run(wrkr, done))
     await task
     assert task.result() is None
+
+
+@pytest.mark.asyncio
+async def test_with_finalizer(event_loop):
+    mq = FakeMQ()
+    cl = ReconnectingClient(mq, "with_finalizer")
+    finalizer_called = False
+
+    def finalizer():
+        nonlocal finalizer_called
+        finalizer_called = True
+
+    task = event_loop.create_task(cl.run(wrkr, done, finalizer))
+    await task
+    assert task.result() is None
+    assert finalizer_called is True
