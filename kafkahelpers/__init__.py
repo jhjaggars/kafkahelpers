@@ -36,6 +36,9 @@ class ReconnectingClient(object):
                 await self.client.start()
                 logger.info("%s client connected successfully.", self.name)
                 self.connected = True
+            except AssertionError as ae:
+                logger.info("Got an AssertionError, we are probably still connected: %s", ae)
+                self.connected = True
             except KafkaError:
                 logger.exception(
                     "Failed to connect %s client, retrying in %d seconds.",
@@ -49,7 +52,7 @@ class ReconnectingClient(object):
         Executes the worker function.
         """
         try:
-            await worker(self.client)
+            return await worker(self.client)
         except KafkaError:
             logger.exception(
                 "Encountered exception while working %s client, reconnecting.",
